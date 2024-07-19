@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+  <title>Sand</title>
+  <style>
+    .custom-underline {
+      position: relative;
+      color: white; /* Default text color */
+    }
+
+    .custom-underline::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -2px; /* Adjust based on the thickness of the underline */
+      width: 100%;
+      height: 2px; /* Adjust the thickness of the underline */
+      background-color: #4b2a2a; /* Use the desired shade of brown */
+      transform: scaleX(0);
+      transition: transform 0.3s ease, background-color 0.3s ease;
+    }
+
+    .custom-underline:hover {
+      color: #ae2222; /* Change text color to brown on hover */
+    }
+
+    .custom-underline:hover::after {
+      transform: scaleX(1);
+    }
+
+    .popover {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      text-align: center;
+      z-index: 50;
+    }
+
+    .fact-popover {
+      display: none;
+      position: absolute;
+      top: 10%;
+      right: 5%;
+      background-color: white;
+      color: black;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      text-align: left;
+      z-index: 50;
+      width: auto;
+      max-width: 300px;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    .hammer-punch {
+      position: relative;
+      display: inline-block;
+    }
+
+    .hammer-punch::before {
+      content: '🔨'; /* Use hammer emoji */
+      position: absolute;
+      top: -80px; /* Adjust based on hammer emoji size */
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 4rem; /* Adjust based on desired size */
+      z-index: 40;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+    }
+
+    .hammer-punch.punch-active::before {
+      opacity: 1;
+      visibility: visible;
+      animation: hammerPunch 0.5s ease-in-out;
+    }
+
+    @keyframes hammerPunch {
+      0% { transform: translateX(-50%) rotate(0deg); }
+      50% { transform: translateX(-50%) rotate(-30deg); }
+      100% { transform: translateX(-50%) rotate(0deg); }
+    }
+  </style>
+</head>
+<body style="background-image:url('logo.png');">
+  <div class="min-h-screen flex flex-col items-center justify-start pt-12 relative">
+    <div class="absolute top-4 w-full flex justify-center items-center">
+      <div class="flex items-center space-x-4">
+        <h1 class="text-5xl font-bold custom-underline">StopWatch</h1>
+      </div>
+    </div>
+    <button onclick="showFact()" class="absolute top-4 right-4 bg-purple-600 hover:bg-purple-800 text-white font-bold py-2 px-4 rounded shadow-md transform hover:scale-105 transition-transform duration-200">
+      Show Fact
+    </button>
+    <!-- Timer Box -->
+    <div class="absolute left-0 top-1/2 transform -translate-y-1/2 ml-4 p-6 border-4 border-brown-800 bg-brown-900 rounded-lg shadow-lg flex items-center justify-center text-7xl font-bold text-white">
+      <div id="stopwatch">
+        00:<span id="minutes">00</span>:<span id="seconds">00</span>
+      </div>
+    </div>
+    <!-- Buttons -->
+    <div class="absolute right-0 top-1/2 transform -translate-y-1/2 mr-4 flex space-x-4">
+      <button id="startButton" onclick="startStopwatch()" class="hammer-punch bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transform hover:scale-105 transition-transform duration-200">
+        Start
+      </button>
+      <button id="stopButton" onclick="stopStopwatch()" class="bg-red-500 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transform hover:scale-105 transition-transform duration-200">
+        Stop
+      </button>
+      <button id="resetButton" onclick="resetStopwatch()" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transform hover:scale-105 transition-transform duration-200">
+        Reset
+      </button>
+    </div>
+    <div id="popover" class="popover">10 seconds have passed!</div>
+    <div id="factPopover" class="fact-popover">
+      <div class="flex">
+        <img class="w-8 h-8 rounded-full" src="https://via.placeholder.com/150" alt="Time Fact Image"/>
+        <div class="ml-3 text-sm font-normal">
+          <span class="mb-1 text-sm font-semibold text-gray-900">Time Fact</span>
+          <div class="mb-2 text-sm font-normal" id="factText"></div>
+          <button onclick="hideFactPopover()" class="inline-flex px-2.5 py-1.5 text-xs font-medium text-center text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300">Close</button>
+        </div>
+        <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-white justify-center items-center flex-shrink-0 text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex h-8 w-8" onclick="hideFactPopover()">
+          <span class="sr-only">Close</span>
+          <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+  <script>
+    let seconds = 0;
+    let minutes = 0;
+    let timer;
+
+    const facts = [
+      "Time is the most valuable thing a man can spend. – Theophrastus",
+      "Time flies over us, but leaves its shadow behind. – Nathaniel Hawthorne",
+      "Lost time is never found again. – Benjamin Franklin",
+      "Time is what we want most, but what we use worst. – William Penn",
+      "The only reason for time is so that everything doesn’t happen at once. – Albert Einstein"
+    ];
+
+    function startStopwatch() {
+      timer = setInterval(updateStopwatch, 1000);
+      showHammerEmoji('startButton');
+    }
+
+    function stopStopwatch() {
+      clearInterval(timer);
+      showHammerEmoji('stopButton');
+    }
+
+    function resetStopwatch() {
+      clearInterval(timer);
+      seconds = 0;
+      minutes = 0;
+      document.getElementById('seconds').textContent = '00';
+      document.getElementById('minutes').textContent = '00';
+    }
+
+    function updateStopwatch() {
+      seconds++;
+      if (seconds >= 60) {
+        seconds = 0;
+        minutes++;
+      }
+      document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+      document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+      document.getElementById('popover').textContent = `${Math.floor(seconds / 10) * 10} seconds have passed!`;
+    }
+
+    function showFact() {
+      const factIndex = Math.floor(Math.random() * facts.length);
+      document.getElementById('factText').textContent = facts[factIndex];
+      document.getElementById('factPopover').style.display = 'block';
+    }
+
+    function hideFactPopover() {
+      document.getElementById('factPopover').style.display = 'none';
+    }
+
+    function showHammerEmoji(buttonId) {
+      const button = document.getElementById(buttonId);
+      button.classList.add('punch-active');
+
+      // Hide the hammer emoji after animation completes
+      setTimeout(() => {
+        button.classList.remove('punch-active');
+      }, 500); // Duration of the animation
+    }
+  </script>
+</body>
+</html>
+s
